@@ -27,3 +27,17 @@ class Target:
             )
 
         return cls(url=value)
+
+
+@dataclass(frozen=True)
+class FetchResult:
+    """Итог одного запроса: время, объём, статус и описание сбоя."""
+
+    elapsed_seconds: float
+    bytes_downloaded: int
+    status_code: int | None = None
+    error: str | None = None
+
+    @property
+    def ok(self) -> bool:
+        return self.error is None
