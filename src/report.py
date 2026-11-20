@@ -41,3 +41,52 @@ class FetchResult:
     @property
     def ok(self) -> bool:
         return self.error is None
+
+
+@dataclass(frozen=True)
+class Report:
+    """Отчёт по прогону: агрегаты по успешным запросам."""
+
+    target: Target
+    samples: tuple[FetchResult, ...]
+
+    @property
+    def _ok(self) -> tuple[FetchResult, ...]:
+        """Успешные запросы: по ним считается вся статистика."""
+        return tuple(sample for sample in self.samples if sample.ok)
+
+    @property
+    def successful(self) -> int:
+        return len(self._ok)
+
+    @property
+    def failed(self) -> int:
+        return len(self.samples) - self.successful
+
+    @property
+    def total_bytes(self) -> int:
+        return sum(sample.bytes_downloaded for sample in self._ok)
+
+    @property
+    def total_seconds(self) -> float:
+        return sum(sample.elapsed_seconds for sample in self._ok)
+
+    @property
+    def avg_seconds(self) -> float:
+        if not self.successful:
+            return 0.0
+
+        return self.total_seconds / self.successful
+
+    @property
+    def mb_per_s(self) -> float:
+        """Мегабайт/с: суммарные байты / суммарное время."""
+        if not self.total_seconds:
+            return 0.0
+
+        return self.total_bytes / self.total_seconds / 1_000_000
+
+    @property
+    def mbps(self) -> float:
+        """Мегабит/с: суммарные биты / суммарное время."""
+        return self.mb_per_s * 8
