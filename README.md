@@ -35,6 +35,13 @@ uv run ruff check .
 uv run ruff format --check .
 ```
 
+## Запуск (Docker)
+
+```bash
+docker build -t speedtester .
+docker run --rm speedtester https://example.com/big.jpg
+```
+
 ## Единицы измерения
 
 | Показатель | Формула | Единица |
